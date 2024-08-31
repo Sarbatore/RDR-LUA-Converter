@@ -4,3 +4,5 @@
 - Launch the main.py file
 - Wait... ~500 lines/16 seconds
 - See the result in outgoin/ folder
+
+![alt text](image.PNG)

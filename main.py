@@ -10,18 +10,18 @@ content = ""
 
 natives_path = os.path.join(os.path.dirname(__file__), "natives.json")
 incoming_path = os.path.join(os.path.dirname(__file__), "incoming")
-outcoming_path = os.path.join(os.path.dirname(__file__), "outcoming")
+outgoing_path = os.path.join(os.path.dirname(__file__), "outgoing")
 
 '''
     Convert a native name to RedM name
 '''
 def ToRedMNative(s):
     # Return a Citizen.InvokeNative if the native is a hash
-    if (s.startswith('_0x')):
+    if (s.startswith("_0x")):
         return "Citizen.InvokeNative(" + s[1:] + ", "
     
     # Remove the underscore if the native starts with it
-    if (s.startswith('_')):
+    if (s.startswith("_")):
         s = s[1:]
 
     result = []
@@ -29,7 +29,7 @@ def ToRedMNative(s):
 
     # Capitalize the first letter after underscore
     for char in s:
-        if char == '_':
+        if char == "_":
             capitalize_next = True
 
         else:
@@ -40,7 +40,7 @@ def ToRedMNative(s):
             else:
                 result.append(char.lower())
 
-    return ''.join(result)
+    return "".join(result)
 
 '''
     Fetch natives from the internet
@@ -50,32 +50,32 @@ if not os.path.exists(natives_path):
 
     response = requests.get("https://gist.githubusercontent.com/fingaweg/2a7653c73daf985f73667e9c424cb624/raw/fd342ec0cf04242abfe29609e660ef165d78d67c/scrCommand_dump_b1491.50")
     if response.status_code == 200:
-        content = response.text.split('\n')
+        content = response.text.split("\n")
         for line in content:
             # Be sure that the line is not empty
             if line.strip():
                 # Split the lines
-                parts = line.split(', ')
+                parts = line.split(", ")
 
                 # Be sure that the line has at least 3 parts
                 if len(parts) >= 3:
                     # Get the original hash, the current hash, the address and the name
-                    original_hash = parts[0].split(': ')[1]
-                    current_hash = parts[1].split(': ')[1]
+                    original_hash = parts[0].split(": ")[1]
+                    current_hash = parts[1].split(": ")[1]
 
-                    address_part = parts[2].split(': ')
-                    address_part = address_part[1].split(' ')
+                    address_part = parts[2].split(": ")
+                    address_part = address_part[1].split(" ")
 
                     address = address_part[0]
                     name = address_part[1] if len(address_part) > 1 else address_part[0]
                                             
                     # Create the entry
                     entry = {
-                        'original_hash': original_hash,
-                        'current_hash': current_hash,
-                        'address': address,
-                        'name': name,
-                        'RedMName': ToRedMNative(name)
+                        "original_hash": original_hash,
+                        "current_hash": current_hash,
+                        "address": address,
+                        "name": name,
+                        "RedMName": ToRedMNative(name)
                     }
 
                     # Add the entry to the list
@@ -115,7 +115,7 @@ for file in os.listdir(incoming_path):
         content = content.replace(";", "")
 
         # *<varname> to <varname>
-        content = re.sub(r'\*(\w+)', r'\1', content)
+        content = re.sub(r"\*(\w+)", r"\1", content)
 
         # Replace variable types
         types = ["var", "int", "char", "float", "bool", "Vector3", "vector3"]
@@ -164,14 +164,14 @@ for file in os.listdir(incoming_path):
         #TODO: Replace functions bracket
 
         # Replace <number>f by <number>
-        content = re.sub(r'(\d+)f', r'\1', content)
+        content = re.sub(r"(\d+)f", r"\1", content)
 
         unique_native_replacements = 0
         total_replaced_natives = 0
         for native in natives:
             native_replacements = 0
 
-            namespace_pattern = r'\b\w+::'
+            namespace_pattern = r"\b\w+::"
 
             # Find by name
             pattern = namespace_pattern + native["name"] + r"\("
@@ -192,7 +192,7 @@ for file in os.listdir(incoming_path):
 
         # Create the lua file in outcoming
         fileName = file.replace(".c", ".lua")
-        with open(os.path.join(outcoming_path, fileName), "w") as f:
+        with open(os.path.join(outgoing_path, fileName), "w") as f:
             f.write(content)
 
             end_time = os.times()[0]
